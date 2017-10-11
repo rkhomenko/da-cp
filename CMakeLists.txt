@@ -16,6 +16,8 @@ set(SOURCE_SUFFIX "cpp")
 set(INCLUDE_DIR "include")
 set(SOURCE_DIR "src")
 
+include_directories("${INCLUDE_DIR}")
+
 file(GLOB_RECURSE INCLUDES "${INCLUDE_DIR}" "*.${HEADER_SUFFIX}")
 file(GLOB_RECURSE SOURCES "${SOURCES_DIR}" "*.${SOURCE_SUFFIX}")
 
