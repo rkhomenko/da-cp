@@ -10,6 +10,8 @@
 class TLZW {
 public:
     using TCode = uint16_t;
+    using TChar = char;
+    using TString = std::basic_string<TChar>;
 
     friend std::istream& operator>>(const TLZW& lzw, std::istream& is);
     friend std::ostream& operator<<(const TLZW& lzw, std::ostream& os);
@@ -18,7 +20,8 @@ public:
 private:
     void InitDictionary();
 
-    std::unordered_map<std::string, TCode> Dictionary;
+    TCode Counter;
+    std::unordered_map<TString, TCode> Dictionary;
     std::vector<TCode> Output;
 };
 
