@@ -22,4 +22,7 @@ private:
     std::vector<TCode> Output;
 };
 
+std::istream& operator>>(const TLZW lzw, std::istream& is);
+std::ostream& operator<<(const TLZW lzw, std::ostream& os);
+
 #endif // DA_CP_LZW_HPP_
