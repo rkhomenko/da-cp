@@ -11,8 +11,8 @@ class TLZW {
 public:
     using TCode = uint16_t;
 
-    friend std::istream& operator>>(const TLZW lzw, std::istream& is);
-    friend std::ostream& operator<<(const TLZW lzw, std::ostream& os);
+    friend std::istream& operator>>(const TLZW& lzw, std::istream& is);
+    friend std::ostream& operator<<(const TLZW& lzw, std::ostream& os);
 
     TLZW();
 private:
@@ -22,7 +22,7 @@ private:
     std::vector<TCode> Output;
 };
 
-std::istream& operator>>(const TLZW lzw, std::istream& is);
-std::ostream& operator<<(const TLZW lzw, std::ostream& os);
+std::istream& operator>>(const TLZW& lzw, std::istream& is);
+std::ostream& operator<<(const TLZW& lzw, std::ostream& os);
 
 #endif // DA_CP_LZW_HPP_
