@@ -3,6 +3,9 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    TLZW lzw(100);
+    TLZW lzw(3);
+
+    std::cin >> lzw;
+
     std::cout << "Go away! It doesn't work!" << std::endl;
 }

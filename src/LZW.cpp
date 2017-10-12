@@ -29,19 +29,28 @@ void TLZW::InitDictionary() {
 }
 
 std::istream& TLZW::Coding(std::istream& is) {
-    // TODO: need realization
+    std::vector<TChar> input(BufferSize);
+
+    while (is) {
+        // if fileSize = C * BufferSize
+        // cycle will work C + 1 times
+        is.read(input.data(), input.capacity() * sizeof(TChar));
+        BufferCoding(input, is.gcount());
+    }
     return is;
 }
+
+void TLZW::BufferCoding(const std::vector<TChar>& buffer, TSize bufferSize) {}
 
 std::ostream& TLZW::Decoding(std::ostream& os) {
     // TODO: need realization
     return os;
 }
 
-std::istream& operator>>(TLZW& lzw, std::istream& is) {
+std::istream& operator>>(std::istream& is, TLZW& lzw) {
     return lzw.Coding(is);
 }
 
-std::ostream& operator<<(TLZW& lzw, std::ostream& os) {
+std::ostream& operator<<(std::ostream& os, TLZW& lzw) {
     return lzw.Decoding(os);
 }
