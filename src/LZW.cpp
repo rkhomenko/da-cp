@@ -9,7 +9,7 @@ using TChar = TLZW::TChar;
 using TString = TLZW::TString;
 using TCode = TLZW::TCode;
 
-TLZW::TLZW() : Counter{0} {
+TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
     InitDictionary();
 }
 
