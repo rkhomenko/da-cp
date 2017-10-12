@@ -5,10 +5,6 @@
 #include <stdexcept>
 #include <utility>
 
-using TChar = TLZW::TChar;
-using TString = TLZW::TString;
-using TCode = TLZW::TCode;
-
 TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
     InitDictionary();
 }
@@ -32,11 +28,20 @@ void TLZW::InitDictionary() {
     }
 }
 
+std::istream& TLZW::Coding(std::istream& is) {
+    // TODO: need realization
+    return is;
+}
+
+std::ostream& TLZW::Decoding(std::ostream& os) {
+    // TODO: need realization
+    return os;
+}
+
 std::istream& operator>>(TLZW& lzw, std::istream& is) {
     return lzw.Coding(is);
 }
 
 std::ostream& operator<<(TLZW& lzw, std::ostream& os) {
     return lzw.Decoding(os);
-    s
 }
