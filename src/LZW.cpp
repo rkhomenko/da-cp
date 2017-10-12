@@ -5,7 +5,10 @@
 #include <stdexcept>
 #include <utility>
 
+const TLZW::TCode TLZW::EOM = std::numeric_limits<TLZW::TCode>::max() - 1;
+
 TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
+    Output = std::vector<TCode>(10000);
     InitDictionary();
 }
 
@@ -29,18 +32,46 @@ void TLZW::InitDictionary() {
 }
 
 std::istream& TLZW::Coding(std::istream& is) {
-    std::vector<TChar> input(BufferSize);
+    std::vector<TChar> input(BufferSize + 1);
 
     while (is) {
         // if fileSize = C * BufferSize
         // cycle will work C + 1 times
         is.read(input.data(), input.capacity() * sizeof(TChar));
-        BufferCoding(input, is.gcount());
+
+        BufferCoding(is, input, is.gcount());
     }
+
     return is;
 }
 
-void TLZW::BufferCoding(const std::vector<TChar>& buffer, TSize bufferSize) {}
+void TLZW::BufferCoding(std::istream& is,
+                        const std::vector<TChar>& buffer,
+                        TSize bufferSize) {
+    TString phrase = {};
+
+    phrase += buffer[0];
+    for (TSize i = 1; i < bufferSize; i++) {
+        auto currentPhrase = phrase + buffer[i];
+        std::cout << "i = " << i + 1 << " "
+                  << "X = \"" << phrase << "\", XY = \"" << currentPhrase
+                  << "\"" << std::endl;
+        auto iter = Dictionary.find(currentPhrase);
+        if (iter != Dictionary.end()) {
+            phrase = currentPhrase;
+        } else {
+            auto[str, code] = *Dictionary.find(phrase);
+            // TODO: Replace Output with ostream. How?
+            std::cout << code << std::endl;
+
+            auto[iter, isInserted] =
+                Dictionary.insert(std::make_pair(currentPhrase, Counter));
+            Counter++;
+
+            phrase = buffer[i];
+        }
+    }
+}
 
 std::ostream& TLZW::Decoding(std::ostream& os) {
     // TODO: need realization

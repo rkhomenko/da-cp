@@ -20,10 +20,14 @@ public:
     TLZW(TSize bufferSize);
 
 private:
+    static const TCode EOM;
+
     void InitDictionary();
 
     std::istream& Coding(std::istream& is);
-    void BufferCoding(const std::vector<TChar>& buffer, TSize bufferSize);
+    void BufferCoding(std::istream& is,
+                      const std::vector<TChar>& buffer,
+                      TSize bufferSize);
 
     std::ostream& Decoding(std::ostream& os);
 
