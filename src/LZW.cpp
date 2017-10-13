@@ -31,7 +31,7 @@ void TLZW::InitDictionary() {
     }
 }
 
-std::istream& TLZW::Coding(std::istream& is) {
+void TLZW::Coding(std::istream& is, std::ostream& os) {
     std::vector<TChar> input(BufferSize + 1);
 
     while (is) {
@@ -39,13 +39,11 @@ std::istream& TLZW::Coding(std::istream& is) {
         // cycle will work C + 1 times
         is.read(input.data(), input.capacity() * sizeof(TChar));
 
-        BufferCoding(is, input, is.gcount());
+        BufferCoding(os, input, is.gcount());
     }
-
-    return is;
 }
 
-void TLZW::BufferCoding(std::istream& is,
+void TLZW::BufferCoding(std::ostream& os,
                         const std::vector<TChar>& buffer,
                         TSize bufferSize) {
     TString phrase = {};
@@ -61,8 +59,7 @@ void TLZW::BufferCoding(std::istream& is,
             phrase = currentPhrase;
         } else {
             auto[str, code] = *Dictionary.find(phrase);
-            // TODO: Replace Output with ostream. How?
-            std::cout << code << std::endl;
+            os << code;
 
             auto[iter, isInserted] =
                 Dictionary.insert(std::make_pair(currentPhrase, Counter));
@@ -73,15 +70,7 @@ void TLZW::BufferCoding(std::istream& is,
     }
 }
 
-std::ostream& TLZW::Decoding(std::ostream& os) {
+std::ostream& TLZW::Decoding(std::istream& is, std::ostream& os) {
     // TODO: need realization
     return os;
-}
-
-std::istream& operator>>(std::istream& is, TLZW& lzw) {
-    return lzw.Coding(is);
-}
-
-std::ostream& operator<<(std::ostream& os, TLZW& lzw) {
-    return lzw.Decoding(os);
 }

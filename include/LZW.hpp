@@ -14,30 +14,24 @@ public:
     using TChar = char;
     using TString = std::basic_string<TChar>;
 
-    friend std::istream& operator>>(std::istream& is, TLZW& lzw);
-    friend std::ostream& operator<<(std::ostream& os, TLZW& lzw);
-
     TLZW(TSize bufferSize);
+
+    void Coding(std::istream& is, std::ostream& os);
+    void Decoding(std::istream& is, std::ostream& os);
 
 private:
     static const TCode EOM;
 
     void InitDictionary();
 
-    std::istream& Coding(std::istream& is);
-    void BufferCoding(std::istream& is,
+    void BufferCoding(std::ostream& os,
                       const std::vector<TChar>& buffer,
                       TSize bufferSize);
-
-    std::ostream& Decoding(std::ostream& os);
 
     TSize BufferSize;
     TCode Counter;
     std::unordered_map<TString, TCode> Dictionary;
     std::vector<TCode> Output;
 };
-
-std::istream& operator>>(std::istream& is, TLZW& lzw);
-std::ostream& operator<<(std::ostream& os, TLZW& lzw);
 
 #endif  // DA_CP_LZW_HPP_
