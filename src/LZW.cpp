@@ -70,7 +70,6 @@ void TLZW::BufferCoding(std::ostream& os,
     }
 }
 
-std::ostream& TLZW::Decoding(std::istream& is, std::ostream& os) {
+void TLZW::Decoding(std::istream& is, std::ostream& os) {
     // TODO: need realization
-    return os;
 }
