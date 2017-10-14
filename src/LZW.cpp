@@ -32,14 +32,13 @@ void TLZW::InitDictionary() {
 }
 
 void TLZW::Coding(std::istream& is, std::ostream& os) {
-    std::vector<TChar> input(BufferSize + 1);
+    std::vector<TChar> input(BufferSize);
 
     while (is) {
-        // if fileSize = C * BufferSize
-        // cycle will work C + 1 times
         is.read(input.data(), input.capacity() * sizeof(TChar));
-
-        BufferCoding(os, input, is.gcount());
+        if (is.gcount()) {
+            BufferCoding(os, input, is.gcount());
+        }
     }
 }
 
@@ -68,5 +67,29 @@ void TLZW::BufferCoding(std::ostream& os,
 }
 
 void TLZW::Decoding(std::istream& is, std::ostream& os) {
-    // TODO: need realization
+    std::vector<TCode> output(BufferSize);
+    TSize index = {};
+    TCode code = {};
+
+    while (is >> code) {
+        output[index] = code;
+        index++;
+
+        if (index == BufferSize) {
+            BufferDecoding(os, output, index);
+            index = 0;
+        }
+    }
+
+    if (index != 0) {
+        BufferDecoding(os, output, index);
+    }
+}
+
+void TLZW::BufferDecoding(std::ostream& os,
+                          const std::vector<TCode> buffer,
+                          TSize bufferSize) {
+    for (TSize i = 0; i < bufferSize; i++) {
+        os << buffer[i] << std::endl;
+    }
 }

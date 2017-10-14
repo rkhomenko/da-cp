@@ -27,6 +27,9 @@ private:
     void BufferCoding(std::ostream& os,
                       const std::vector<TChar>& buffer,
                       TSize bufferSize);
+    void BufferDecoding(std::ostream& os,
+                        const std::vector<TCode> buffer,
+                        TSize bufferSize);
 
     TSize BufferSize;
     TCode Counter;
