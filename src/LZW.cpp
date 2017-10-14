@@ -8,7 +8,6 @@
 const TLZW::TCode TLZW::EOM = std::numeric_limits<TLZW::TCode>::max() - 1;
 
 TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
-    Output = std::vector<TCode>(10000);
     InitDictionary();
 }
 
@@ -19,13 +18,10 @@ void TLZW::InitDictionary() {
     const auto MAX = std::numeric_limits<TChar>::max();
 
     for (TUpperType c = MIN; c <= MAX; c++) {
-        auto[_, isInserted] = Dictionary.insert(
-            std::make_pair(TString(STRING_LEN, static_cast<char>(c)), Counter));
+        auto str = TString(STRING_LEN, static_cast<char>(c));
 
-        if (!isInserted) {
-            throw std::runtime_error(
-                "TLZW::InitDictionary: Cannot insert to dictionary");
-        }
+        StrToCodeDict.insert(std::make_pair(str, Counter));
+        CodeToStrDict.insert(std::make_pair(Counter, str));
 
         Counter++;
     }
@@ -45,7 +41,8 @@ void TLZW::Coding(std::istream& is, std::ostream& os) {
 void TLZW::BufferCoding(std::ostream& os,
                         const std::vector<TChar>& buffer,
                         TSize bufferSize) {
-    auto dictionary = Dictionary;
+    auto counter = Counter;
+    auto dictionary = StrToCodeDict;
     TString phrase = {};
 
     phrase += buffer[0];
@@ -59,8 +56,8 @@ void TLZW::BufferCoding(std::ostream& os,
             os << code << std::endl;
 
             auto[iter, isInserted] =
-                dictionary.insert(std::make_pair(currentPhrase, Counter));
-            Counter++;
+                dictionary.insert(std::make_pair(currentPhrase, counter));
+            counter++;
 
             phrase = buffer[i];
         }
@@ -90,7 +87,37 @@ void TLZW::Decoding(std::istream& is, std::ostream& os) {
 void TLZW::BufferDecoding(std::ostream& os,
                           const std::vector<TCode> buffer,
                           TSize bufferSize) {
-    for (TSize i = 0; i < bufferSize; i++) {
-        os << buffer[i] << std::endl;
+    auto counter = Counter;
+    auto dictionary = CodeToStrDict;
+    TString phrase = {};
+    TChar c = {};
+    TCode code = buffer[0];
+
+    auto translate = [&dictionary](TCode code) -> auto {
+        return (*dictionary.find(code)).second;
+    };
+
+    os << translate(code);
+
+    for (TSize i = 1; i < bufferSize; i++) {
+        auto currentCode = buffer[i];
+        auto iter = dictionary.find(currentCode);
+
+        if (iter != dictionary.end()) {
+            phrase = translate(currentCode);
+        } else {
+            phrase = translate(code);
+            phrase += c;
+        }
+
+        os << phrase;
+
+        c = phrase[0];
+
+        auto str = translate(code) + c;
+        dictionary.insert(make_pair(counter, str));
+        counter++;
+
+        code = currentCode;
     }
 }

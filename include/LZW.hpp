@@ -33,8 +33,8 @@ private:
 
     TSize BufferSize;
     TCode Counter;
-    std::unordered_map<TString, TCode> Dictionary;
-    std::vector<TCode> Output;
+    std::unordered_map<TString, TCode> StrToCodeDict;
+    std::unordered_map<TCode, TString> CodeToStrDict;
 };
 
 #endif  // DA_CP_LZW_HPP_
