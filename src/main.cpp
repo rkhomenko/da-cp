@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-    TLZW lzw(3);
+    TLZW lzw(100);
 
     lzw.Coding(std::cin, std::cout);
 

@@ -51,15 +51,12 @@ void TLZW::BufferCoding(std::ostream& os,
     phrase += buffer[0];
     for (TSize i = 1; i < bufferSize; i++) {
         auto currentPhrase = phrase + buffer[i];
-        std::cout << "i = " << i + 1 << " "
-                  << "X = \"" << phrase << "\", XY = \"" << currentPhrase
-                  << "\"" << std::endl;
         auto iter = Dictionary.find(currentPhrase);
         if (iter != Dictionary.end()) {
             phrase = currentPhrase;
         } else {
             auto[str, code] = *Dictionary.find(phrase);
-            os << code;
+            os << code << std::endl;
 
             auto[iter, isInserted] =
                 Dictionary.insert(std::make_pair(currentPhrase, Counter));
