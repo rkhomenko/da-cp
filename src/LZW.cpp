@@ -45,20 +45,21 @@ void TLZW::Coding(std::istream& is, std::ostream& os) {
 void TLZW::BufferCoding(std::ostream& os,
                         const std::vector<TChar>& buffer,
                         TSize bufferSize) {
+    auto dictionary = Dictionary;
     TString phrase = {};
 
     phrase += buffer[0];
     for (TSize i = 1; i < bufferSize; i++) {
         auto currentPhrase = phrase + buffer[i];
-        auto iter = Dictionary.find(currentPhrase);
-        if (iter != Dictionary.end()) {
+        auto iter = dictionary.find(currentPhrase);
+        if (iter != dictionary.end()) {
             phrase = currentPhrase;
         } else {
-            auto[str, code] = *Dictionary.find(phrase);
+            auto[str, code] = *dictionary.find(phrase);
             os << code << std::endl;
 
             auto[iter, isInserted] =
-                Dictionary.insert(std::make_pair(currentPhrase, Counter));
+                dictionary.insert(std::make_pair(currentPhrase, Counter));
             Counter++;
 
             phrase = buffer[i];
