@@ -5,7 +5,8 @@
 #include <stdexcept>
 #include <utility>
 
-const TLZW::TCode TLZW::EOM = std::numeric_limits<TLZW::TCode>::max() - 1;
+const TLZW::TCode TLZW::EOB = std::numeric_limits<TLZW::TCode>::max() - 1;
+const TLZW::TCode TLZW::EOM = TLZW::EOB - 1;
 
 TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
     InitDictionary();
@@ -17,7 +18,7 @@ void TLZW::InitDictionary() {
     const auto MIN = std::numeric_limits<TChar>::min();
     const auto MAX = std::numeric_limits<TChar>::max();
 
-    for (TUpperType c = MIN; c <= MAX; c++) {
+    for (TUpperType c = 0; c < 128; c++) {
         auto str = TString(STRING_LEN, static_cast<char>(c));
 
         StrToCodeDict.insert(std::make_pair(str, Counter));
@@ -45,23 +46,29 @@ void TLZW::BufferCoding(std::ostream& os,
     auto dictionary = StrToCodeDict;
     TString phrase = {};
 
+    auto translate = [&dictionary](TString phrase) -> auto {
+        return dictionary.find(phrase);
+    };
+
     phrase += buffer[0];
     for (TSize i = 1; i < bufferSize; i++) {
         auto currentPhrase = phrase + buffer[i];
-        auto iter = dictionary.find(currentPhrase);
+        auto iter = translate(currentPhrase);
         if (iter != dictionary.end()) {
             phrase = currentPhrase;
         } else {
-            auto[str, code] = *dictionary.find(phrase);
+            auto[str, code] = *translate(phrase);
             os << code << std::endl;
 
-            auto[iter, isInserted] =
-                dictionary.insert(std::make_pair(currentPhrase, counter));
+            dictionary.insert(std::make_pair(currentPhrase, counter));
             counter++;
 
             phrase = buffer[i];
         }
     }
+    auto[str, code] = *translate(phrase);
+    os << code << std::endl;
+    os << EOB << std::endl;
 }
 
 void TLZW::Decoding(std::istream& is, std::ostream& os) {
@@ -70,17 +77,13 @@ void TLZW::Decoding(std::istream& is, std::ostream& os) {
     TCode code = {};
 
     while (is >> code) {
-        output[index] = code;
-        index++;
-
-        if (index == BufferSize) {
+        if (code == EOB) {
             BufferDecoding(os, output, index);
             index = 0;
+        } else {
+            output[index] = code;
+            index++;
         }
-    }
-
-    if (index != 0) {
-        BufferDecoding(os, output, index);
     }
 }
 
@@ -98,6 +101,7 @@ void TLZW::BufferDecoding(std::ostream& os,
     };
 
     os << translate(code);
+    c = translate(code)[0];
 
     for (TSize i = 1; i < bufferSize; i++) {
         auto currentCode = buffer[i];

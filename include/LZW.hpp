@@ -20,6 +20,7 @@ public:
     void Decoding(std::istream& is, std::ostream& os);
 
 private:
+    static const TCode EOB;
     static const TCode EOM;
 
     void InitDictionary();
