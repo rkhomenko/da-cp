@@ -6,7 +6,6 @@
 #include <utility>
 
 const TLZW::TCode TLZW::EOB = std::numeric_limits<TLZW::TCode>::max() - 1;
-const TLZW::TCode TLZW::EOM = TLZW::EOB - 1;
 
 TLZW::TLZW(TSize bufferSize) : BufferSize{bufferSize}, Counter{0} {
     InitDictionary();
@@ -18,7 +17,7 @@ void TLZW::InitDictionary() {
     const auto MIN = std::numeric_limits<TChar>::min();
     const auto MAX = std::numeric_limits<TChar>::max();
 
-    for (TUpperType c = 0; c < 128; c++) {
+    for (TUpperType c = MIN; c <= MAX; c++) {
         auto str = TString(STRING_LEN, static_cast<char>(c));
 
         StrToCodeDict.insert(std::make_pair(str, Counter));
@@ -32,7 +31,7 @@ void TLZW::Coding(std::istream& is, std::ostream& os) {
     std::vector<TChar> input(BufferSize);
 
     while (is) {
-        is.read(input.data(), input.capacity() * sizeof(TChar));
+        is.read(input.data(), input.capacity());
         if (is.gcount()) {
             BufferCoding(os, input, is.gcount());
         }

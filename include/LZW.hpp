@@ -21,7 +21,6 @@ public:
 
 private:
     static const TCode EOB;
-    static const TCode EOM;
 
     void InitDictionary();
 
