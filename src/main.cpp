@@ -8,7 +8,15 @@
 #include <string>
 #include <vector>
 
-enum class Error : int { BAD_ARGUMENTS };
+#ifdef DEBUG
+#define __DEBUG_VALUE true
+#else
+#define __DEBUG_VALUE false
+#endif
+
+static constexpr bool DEBUG_ENABLED = {__DEBUG_VALUE};
+
+enum class Error : int { BAD_ARGUMENTS = 1 };
 
 template <typename E>
 constexpr typename std::underlying_type<E>::type ToUnderlying(E e) noexcept {
@@ -35,12 +43,13 @@ std::string MakeHelpRow(const std::string& command,
             strings.push_back(str);
         }
 
-        os << std::setw(MESSAGE_LENGHT) << *strings.begin() << std::endl;
+        os << std::setw(MESSAGE_LENGHT) << *strings.begin();
         for (auto iter = strings.begin() + 1; iter != strings.end(); iter++) {
             os << std::setw(COMMAND_LENGHT) << SPACE
                << std::setw(MESSAGE_LENGHT) << std::setw(MESSAGE_LENGHT)
-               << *iter << std::endl;
+               << *iter;
         }
+        os << std::endl;
     } else {
         os << std::setw(MESSAGE_LENGHT) << message << std::endl;
     }
@@ -80,7 +89,7 @@ int main(int argc, char** argv) {
         "\tcompressed size: size of the compressed file\n"
         "\tuncompressed size: size of the uncompressed file\n"
         "\tratio: compression ratio (0.0% if unknown)\n"
-        "\tuncompressed_name: name of the uncompressed file"s;
+        "\tuncompressed_name: name of the uncompressed file\n"s;
     const auto testCommand = "t"s;
     const auto testMessage = "check the compressed file integrity"s;
     const auto fastCommand = "1"s;
@@ -96,6 +105,22 @@ int main(int argc, char** argv) {
         std::make_pair(testCommand, testMessage),
         std::make_pair(fastCommand, fastMessage),
         std::make_pair(bestCommand, bestMessage)};
+
+    if constexpr (DEBUG_ENABLED) {
+        auto debugOnly = [](const std::string& s) -> auto {
+            const auto DEBUG_ONLY = "(debug only)"s;
+            const auto INDENT = " "s;
+            return s + INDENT + DEBUG_ONLY;
+        };
+
+        const auto bufferSizeCommand = "b"s;
+        const auto bufferSizeMessage = debugOnly("set buffer size"s);
+        const auto debugHelpRowVector = std::vector<StringPair>{
+            std::make_pair(bufferSizeCommand, bufferSizeMessage)};
+
+        helpRowVector.insert(helpRowVector.end(), debugHelpRowVector.begin(),
+                             debugHelpRowVector.end());
+    }
     const auto helpMessage =
         "DA curse project LZW + AC archiver.\n"
         "THIS PROGRAM SHOULD NOT BE USED BY ANYONE!\n" +
