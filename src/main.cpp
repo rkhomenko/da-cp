@@ -75,9 +75,13 @@ std::string GenerateHelp(std::vector<StringPair>& vec) {
 
 int main(int argc, char** argv) {
     const auto FIRST = 1;
+
+    // help message constants
     const auto INDENT = "    "s;
     const auto badArgumentsMessage = "Bad arguments! Try -h for help."s;
     const auto helpCommand = "h"s;
+    const auto decompressCommand = "d"s;
+    const auto decompressMessage = "decompress"s;
     const auto useStdInCommand = ""s;
     const auto useStdInMessage = "use stdin"s;
     const auto useStdOutCommand = "c"s;
@@ -85,11 +89,11 @@ int main(int argc, char** argv) {
         "write output on standard output; keep original files unchanged."s;
     const auto listCommand = "l"s;
     const auto listMessage =
-        "for each compressed file list the following field\n"s +
-        INDENT + "compressed size: size of the compressed file\n"s +
-        INDENT + "uncompressed size: size of the uncompressed file\n"s +
-        INDENT + "ratio: compression ratio (0.0% if unknown)\n"s +
-        INDENT + "uncompressed_name: name of the uncompressed file\n"s;
+        "for each compressed file list the following field\n"s + INDENT +
+        "compressed size: size of the compressed file\n"s + INDENT +
+        "uncompressed size: size of the uncompressed file\n"s + INDENT +
+        "ratio: compression ratio (0.0% if unknown)\n"s + INDENT +
+        "uncompressed_name: name of the uncompressed file\n"s;
     const auto testCommand = "t"s;
     const auto testMessage = "check the compressed file integrity"s;
     const auto fastCommand = "1"s;
@@ -104,17 +108,20 @@ int main(int argc, char** argv) {
         std::make_pair(listCommand, listMessage),
         std::make_pair(testCommand, testMessage),
         std::make_pair(fastCommand, fastMessage),
-        std::make_pair(bestCommand, bestMessage)};
+        std::make_pair(bestCommand, bestMessage),
+        std::make_pair(decompressCommand, decompressMessage)};
+
+    auto debugOnly = [](const std::string& s) -> auto {
+        const auto DEBUG_ONLY = "(debug only)"s;
+        const auto INDENT = " "s;
+        return s + INDENT + DEBUG_ONLY;
+    };
+
+    // debug help message constants
+    const auto bufferSizeCommand = "b"s;
+    const auto bufferSizeMessage = debugOnly("set buffer size"s);
 
     if constexpr (DEBUG_ENABLED) {
-        auto debugOnly = [](const std::string& s) -> auto {
-            const auto DEBUG_ONLY = "(debug only)"s;
-            const auto INDENT = " "s;
-            return s + INDENT + DEBUG_ONLY;
-        };
-
-        const auto bufferSizeCommand = "b"s;
-        const auto bufferSizeMessage = debugOnly("set buffer size"s);
         const auto debugHelpRowVector = std::vector<StringPair>{
             std::make_pair(bufferSizeCommand, bufferSizeMessage)};
 
@@ -126,7 +133,11 @@ int main(int argc, char** argv) {
         "DA curse project LZW + AC archiver.\n"
         "THIS PROGRAM SHOULD NOT BE USED BY ANYONE!\n" +
         GenerateHelp(helpRowVector);
+
     bool useStdIn = {};
+    bool useStdOut = {};
+    bool decompress = {};
+    TLZW::TSize bufferSize = 100000;
 
     if (argc == 1) {
         std::cerr << badArgumentsMessage << std::endl;
@@ -134,17 +145,34 @@ int main(int argc, char** argv) {
     }
 
     for (int i = 1; i < argc; i++) {
-        auto s = std::string(argv[i]);
-
-        if (s == useStdInCommand) {
-            useStdIn = true;
-            continue;
-        }
-
-        s = s.substr(FIRST);
+        auto s = std::string(argv[i]).substr(FIRST);
 
         if (s == helpCommand) {
             std::cerr << helpMessage;
+        } else if (s == useStdInCommand) {
+            useStdIn = true;
+        } else if (s == useStdOutCommand) {
+            useStdOut = true;
+        } else if (s == decompressCommand) {
+            decompress = true;
+        } else {
+            if constexpr (DEBUG_ENABLED) {
+                if (s == bufferSizeCommand) {
+                    bufferSize = std::strtoull(argv[i + 1], nullptr, 10);
+                    i++;
+                }
+            }
+        }
+    }
+
+    // TODO: It's temprary code
+    if (useStdIn && useStdOut) {
+        TLZW lzw(bufferSize);
+
+        if (decompress) {
+            lzw.Decoding(std::cin, std::cout);
+        } else {
+            lzw.Coding(std::cin, std::cout);
         }
     }
 }
