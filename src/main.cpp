@@ -28,7 +28,7 @@ using namespace std::literals::string_literals;
 std::string MakeHelpRow(const std::string& command,
                         const std::string& message) {
     const auto COMMAND_LENGHT = 10;
-    const auto MESSAGE_LENGHT = 70;
+    const auto MESSAGE_LENGHT = 69;
     const auto SPACE = ' ';
 
     std::vector<std::string> strings;
@@ -43,13 +43,12 @@ std::string MakeHelpRow(const std::string& command,
             strings.push_back(str);
         }
 
-        os << std::setw(MESSAGE_LENGHT) << *strings.begin();
+        os << std::setw(MESSAGE_LENGHT) << *strings.begin() << std::endl;
         for (auto iter = strings.begin() + 1; iter != strings.end(); iter++) {
             os << std::setw(COMMAND_LENGHT) << SPACE
                << std::setw(MESSAGE_LENGHT) << std::setw(MESSAGE_LENGHT)
-               << *iter;
+               << *iter << std::endl;
         }
-        os << std::endl;
     } else {
         os << std::setw(MESSAGE_LENGHT) << message << std::endl;
     }
@@ -76,6 +75,7 @@ std::string GenerateHelp(std::vector<StringPair>& vec) {
 
 int main(int argc, char** argv) {
     const auto FIRST = 1;
+    const auto INDENT = "    "s;
     const auto badArgumentsMessage = "Bad arguments! Try -h for help."s;
     const auto helpCommand = "h"s;
     const auto useStdInCommand = ""s;
@@ -85,11 +85,11 @@ int main(int argc, char** argv) {
         "write output on standard output; keep original files unchanged."s;
     const auto listCommand = "l"s;
     const auto listMessage =
-        "for each compressed file list the following field\n"
-        "\tcompressed size: size of the compressed file\n"
-        "\tuncompressed size: size of the uncompressed file\n"
-        "\tratio: compression ratio (0.0% if unknown)\n"
-        "\tuncompressed_name: name of the uncompressed file\n"s;
+        "for each compressed file list the following field\n"s +
+        INDENT + "compressed size: size of the compressed file\n"s +
+        INDENT + "uncompressed size: size of the uncompressed file\n"s +
+        INDENT + "ratio: compression ratio (0.0% if unknown)\n"s +
+        INDENT + "uncompressed_name: name of the uncompressed file\n"s;
     const auto testCommand = "t"s;
     const auto testMessage = "check the compressed file integrity"s;
     const auto fastCommand = "1"s;
@@ -121,6 +121,7 @@ int main(int argc, char** argv) {
         helpRowVector.insert(helpRowVector.end(), debugHelpRowVector.begin(),
                              debugHelpRowVector.end());
     }
+
     const auto helpMessage =
         "DA curse project LZW + AC archiver.\n"
         "THIS PROGRAM SHOULD NOT BE USED BY ANYONE!\n" +
