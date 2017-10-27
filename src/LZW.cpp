@@ -49,6 +49,10 @@ void TLZW::BufferCoding(std::ostream& os,
         return dictionary.find(phrase);
     };
 
+    auto write = [&os](TCode code) {
+        os.write(reinterpret_cast<const char*>(&code), sizeof(TCode));
+    };
+
     phrase += buffer[0];
     for (TSize i = 1; i < bufferSize; i++) {
         auto currentPhrase = phrase + buffer[i];
@@ -57,17 +61,16 @@ void TLZW::BufferCoding(std::ostream& os,
             phrase = currentPhrase;
         } else {
             auto[str, code] = *translate(phrase);
-            os << code << std::endl;
+            write(code);
 
             dictionary.insert(std::make_pair(currentPhrase, counter));
             counter++;
-
             phrase = buffer[i];
         }
     }
     auto[str, code] = *translate(phrase);
-    os << code << std::endl;
-    os << EOB << std::endl;
+    write(code);
+    write(EOB);
 }
 
 void TLZW::Decoding(std::istream& is, std::ostream& os) {
@@ -75,7 +78,7 @@ void TLZW::Decoding(std::istream& is, std::ostream& os) {
     TSize index = {};
     TCode code = {};
 
-    while (is >> code) {
+    while (is.read(reinterpret_cast<char*>(&code), sizeof(TCode))) {
         if (code == EOB) {
             BufferDecoding(os, output, index);
             index = 0;
