@@ -90,7 +90,7 @@ void TLZW::Decoding(std::istream& is, std::ostream& os) {
 }
 
 void TLZW::BufferDecoding(std::ostream& os,
-                          const std::vector<TCode> buffer,
+                          const std::vector<TCode>& buffer,
                           TSize bufferSize) {
     auto counter = Counter;
     auto dictionary = CodeToStrDict;

@@ -28,7 +28,7 @@ private:
                       const std::vector<TChar>& buffer,
                       TSize bufferSize);
     void BufferDecoding(std::ostream& os,
-                        const std::vector<TCode> buffer,
+                        const std::vector<TCode>& buffer,
                         TSize bufferSize);
 
     TSize BufferSize;

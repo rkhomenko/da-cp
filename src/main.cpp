@@ -1,46 +1,48 @@
-#include <FNV.hpp>
 #include <LZW.hpp>
 
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <fstream>
 
 int main(int argc, char** argv) {
-    auto help =
-        "\t-c\twrite output to stdout\n"
-        "\t-d\tdecompress\n"
-        "\t-l\tprint compress size, uncompress size, ratio, uncompressed "
-        "name\n"
-        "\t-t\tcheck compress file integrity\n"
-        "\t-r\tcompress files in dir recursively\n"
-        "\t-1\tfastes compression method\n"
-        "\t-9\tbest compression\n";
-
     if (argc == 1) {
-        std::cerr << "Bad argument count. Try -h for help." << std::endl;
-        std::exit(EXIT_FAILURE);
+        std::cout << "Bad usage!" << std::endl;
     }
 
-    if (argc == 2) {
-        if (std::string(argv[1]) == "-h") {
-            std::cout << help;
-            std::exit(EXIT_SUCCESS);
+    auto [decompress, index] = std::string(argv[1]) == "-d" ?
+            std::make_tuple(true, 2) :
+            std::make_tuple(false, 1);
+
+    TLZW lzw(100000);
+
+    std::ifstream input;
+    std::ofstream output;
+
+    for (int i = index; i < argc; i++) {
+        auto name = std::string(argv[i]);
+
+        input.open(name, std::ifstream::in);
+        if (decompress) {
+            output.open(name.substr(0, name.length() - 4) + ".orig", std::ofstream::out);
+        } else {
+            output.open(name + ".lzw", std::ofstream::out);
         }
 
-        // using default compress params
-    }
-
-    auto params = std::string(argv[1]);
-    for (auto i = 1UL; i < params.size(); i++) {
-        switch (params[i]) {
-            case 't':
-                break;
-            case 'h':
-                std::cout << help;
-                std::exit(EXIT_SUCCESS);
-            default:
-                std::cerr << "Bad argument. Try -h for help." << std::endl;
-                std::exit(EXIT_FAILURE);
+        if (!input.is_open() || !output.is_open()) {
+            input.close();
+            output.close();
+            std::cout << "bad name: " << name << std::endl;
+            continue;
         }
+
+        if (decompress) {
+            lzw.Decoding(input, output);
+        } else {
+            lzw.Coding(input, output);
+        }
+
+        input.close();
+        output.close();
     }
 }
